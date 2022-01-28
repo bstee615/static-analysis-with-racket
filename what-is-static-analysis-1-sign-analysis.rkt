@@ -58,12 +58,30 @@
       (+^ (simple-eval^ exp1)
          (simple-eval^ exp2))]
     [`(=, exp1, exp2)
-      {set '0 '+}]
+      (=^ (simple-eval^ exp1)
+          (simple-eval^ exp2))]
     [`(/, exp1, exp2)
       (/^ (simple-eval^ exp1)
           (simple-eval^ exp2))]
   )
 )
+
+
+(define (set-equal? A B)
+  (and (subset? A B)
+       (subset? B A)))
+
+(define (=^ a b)
+  (if
+   (set-empty? (set-intersect a b))
+   {set '0}
+   (if
+    (and (set-equal? a (set 0)) (set-equal? b (set 0)))
+    {set '+}
+    {set '0 '+})))
+"abstract equals"
+"should return {0}" (=^ (set 1 2 3) (set 4 5))
+"should return {0 +}" (=^ (set 1 2 3) (set 2 1))
 
 
 ; /^/sign : sign * sign -> abs-int
@@ -146,3 +164,8 @@
 (simple-eval^ `(+ 2 (+ 1 2)))
 (simple-eval^ `(+ -2 (/ 1 2)))
 (simple-eval^ `(+ -2 (/ -1 2)))
+
+(simple-eval `(= -1 1))
+(simple-eval^ `(= -1 1))
+(simple-eval^ `(= 11 1))
+(simple-eval^ `(= 0 0))
