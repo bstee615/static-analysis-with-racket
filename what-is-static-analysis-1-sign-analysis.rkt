@@ -1,5 +1,7 @@
 #lang racket
 
+;; https://matt.might.net/articles/intro-static-analysis
+
 ; simple-eval : expr -> {set int}
 ; interpreter for our language.
 (define (simple-eval exp)
