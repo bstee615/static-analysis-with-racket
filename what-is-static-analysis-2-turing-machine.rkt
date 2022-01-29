@@ -1,5 +1,7 @@
 #lang racket
 
+;; https://matt.might.net/articles/intro-static-analysis
+
 ; <prog> ::= <stmt> ...
 
 ; <stmt> ::= (label <label>)
@@ -244,11 +246,11 @@
   #:transparent)
 
 ; step^ : state^ -> state^*
-(define (step^ state^0)
+(define (step^ state^-in)
   
-  (define stmts (state^-stmts state^0))
+  (define stmts (state^-stmts state^-in))
   
-  (define env^ (state^-env^ state^0))
+  (define env^ (state^-env^ state^-in))
   
   (match stmts
     ['()
@@ -280,6 +282,18 @@
   
   ; the initial abstract state:
   (define state^0 (inject^ prog))
+
+  ; state^-envs : state^ #> abs-env
+  (define state^-envs (make-hasheq))
+  ; map a state to the current env
+  (define (push-state-env state^-in)
+    
+    (define stmts (state^-stmts state^-in))
+  
+    (define env^ (state^-env^ state^-in))
+
+    (hash-set! state^-envs (car stmts) env^)
+    )
   
   ; the set of all states ever seen:
   ; visited : (set state^)
@@ -320,11 +334,12 @@
       (mark-seen! curr)
       (define succs (step^ curr))
       (when (list? succs)
+        (push-state-env curr)
         (mark-neighbors! curr succs)
         (push-todos succs))))
   
   ; return all visited states:
-  neighbors)
+  state^-envs)
 
 
 
@@ -361,9 +376,12 @@
 (define prog2
   '(
        (:= n 0)
+       (:= m 0)
+       (label dummy)
        (label loop)
        (if (= n 10) goto done)
        (:= n (+ n 1))
+       (:= m (+ m -1))
        (goto loop)
        (label done)
    ))
