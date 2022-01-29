@@ -2,7 +2,9 @@
 
 ;; https://matt.might.net/articles/intro-static-analysis
 
-; simple-eval : expr -> {set int}
+(provide simple-eval)
+
+; simple-eval : expr -> int
 ; interpreter for our language.
 (define (simple-eval exp)
   (match exp
@@ -26,12 +28,13 @@
 )
 
 ; test
-(simple-eval `(+ 10 (* -3 2)))
-(simple-eval `(+ 10 12))
-(simple-eval `(/ 3 1))
-(simple-eval `(/ 10 3))
+;(simple-eval `(+ 10 (* -3 2)))
+;(simple-eval `(+ 10 12))
+;(simple-eval `(/ 3 1))
+;(simple-eval `(/ 10 3))
 
 
+;;;;;;; abstract operators
 ; alpha : int -> abs-int
 ; turns an integer into its abstract integer representation.
 (define (alpha int)
@@ -81,9 +84,6 @@
     (and (set-equal? a (set 0)) (set-equal? b (set 0)))
     {set '+}
     {set '0 '+})))
-"abstract equals"
-"should return {0}" (=^ (set 1 2 3) (set 4 5))
-"should return {0 +}" (=^ (set 1 2 3) (set 2 1))
 
 
 ; /^/sign : sign * sign -> abs-int
@@ -119,10 +119,6 @@
     [{'- '0} {set '0}]
     [{'- '-} {set '+}]))
 
-; worst possible version
-;(define (*^ a b)
-;  {set '- '0 '+})
-
 ; more precise version
 ; *^ : abs-int * abs-int -> abs-int
 (define (*^ a b)
@@ -147,10 +143,6 @@
     [{'- '0} {set '-}]
     [{'- '-} {set '-}]))
 
-; worst possible version
-;(define (+^ a b)
-;  {set '- '0 '+})
-
 ; more precise version
 ; +^ : abs-int * abs-int -> abs-int
 (define (+^ a b)
@@ -163,11 +155,11 @@
 ;(+^ {set '-} {set '+})
 
 ; test
-(simple-eval^ `(+ 2 (+ 1 2)))
-(simple-eval^ `(+ -2 (/ 1 2)))
-(simple-eval^ `(+ -2 (/ -1 2)))
+;(simple-eval^ `(+ 2 (+ 1 2)))
+;(simple-eval^ `(+ -2 (/ 1 2)))
+;(simple-eval^ `(+ -2 (/ -1 2)))
 
-(simple-eval `(= -1 1))
-(simple-eval^ `(= -1 1))
-(simple-eval^ `(= 11 1))
-(simple-eval^ `(= 0 0))
+;(simple-eval `(= -1 1))
+;(simple-eval^ `(= -1 1))
+;(simple-eval^ `(= 11 1))
+;(simple-eval^ `(= 0 0))
