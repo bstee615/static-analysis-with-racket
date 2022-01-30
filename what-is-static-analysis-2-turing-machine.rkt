@@ -265,9 +265,13 @@
     
     [(cons `(if ,exp goto ,label) rest)
      (define condition (simple-eval^ exp env^))
-     (list
-      (state^ (hash-ref stmt-map label) env^)
-      (state^ rest env^))]
+     (if (set-equal? condition {set 1})
+         (list (state^ (hash-ref stmt-map label) env^))
+         (if (set-equal? condition {set 0})
+          (list (state^ rest env^))
+          (list
+           (state^ (hash-ref stmt-map label) env^)
+           (state^ rest env^))))]
     
     [(cons `(goto ,label) rest)
      (list 
@@ -387,3 +391,14 @@
    ))
 (run prog2)
 (analyze prog2)
+
+
+(define prog3
+  '(
+       (:= n 0)
+       (if (= n 10) goto done)
+       (:= n 10)
+       (label done)
+   ))
+(run prog3)
+(analyze prog3)
